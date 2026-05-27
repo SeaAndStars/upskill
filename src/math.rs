@@ -155,3 +155,14 @@ pub fn point_radius_ndc(width: usize, _height: usize) -> f64 {
     let w = width.max(1) as f64;
     (3.0 / w).max(0.015)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn liang_barsky_crosses_viewport() {
+        let clipped = liang_barsky_clip(-2.0, 0.0, 2.0, 0.0).unwrap();
+        assert!(clipped.0 >= -1.0 - 1e-9 && clipped.2 <= 1.0 + 1e-9);
+    }
+}
