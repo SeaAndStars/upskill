@@ -1,0 +1,12 @@
+[package]
+name = "upskill"
+version = "0.1.0"
+edition = "2021"
+description = "3D points projected to 2D with minifb"
+
+[[bin]]
+name = "upskill"
+path = "src/main.rs"
+
+[dependencies]
+minifb = "0.27"
