@@ -4,6 +4,7 @@
 
 #include "cli.hpp"
 #include "parser.hpp"
+#include "path_util.hpp"
 #include "vulkan/app.hpp"
 
 int main(int argc, char** argv) {
@@ -20,7 +21,8 @@ int main(int argc, char** argv) {
     }
 
     try {
-        auto questions = load_file(cli.file_path);
+        const std::string file_path = resolve_input_path(cli.file_path, argv[0]);
+        auto questions = load_file(file_path);
         std::string id_str;
         const std::string* id_ptr = nullptr;
         if (cli.question_id) {

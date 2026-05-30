@@ -189,6 +189,9 @@ bool parse_point_brace(const std::string& section, std::size_t& i, Point3& p) {
             ++i;
         }
         if (i == name_start) {
+            if (section[i] == '}') {
+                continue;
+            }
             ++i;
             continue;
         }

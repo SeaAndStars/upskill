@@ -36,7 +36,9 @@ public:
 
 private:
     VkDevice device_ = VK_NULL_HANDLE;
+    PFN_vkCreateSwapchainKHR create_swapchain_ = nullptr;
     PFN_vkDestroySwapchainKHR destroy_swapchain_ = nullptr;
+    PFN_vkGetSwapchainImagesKHR get_swapchain_images_ = nullptr;
     PFN_vkAcquireNextImageKHR acquire_next_image_ = nullptr;
     PFN_vkQueuePresentKHR queue_present_ = nullptr;
 

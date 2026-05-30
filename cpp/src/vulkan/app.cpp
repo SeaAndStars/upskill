@@ -6,7 +6,6 @@
 #include <thread>
 #include <vector>
 
-#define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
 #include "frame_geom.hpp"
@@ -127,9 +126,10 @@ void record_frame(VulkanDevice& dev, VkCommandBuffer cmd, SwapchainContext& swap
     MeshGpu line_mesh;
     MeshGpu point_mesh;
 
-    vkBeginCommandBuffer(cmd, &VkCommandBufferBeginInfo{
-                                   VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO, nullptr,
-                                   VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT});
+    VkCommandBufferBeginInfo begin_info{};
+    begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    begin_info.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+    vk_check(vkBeginCommandBuffer(cmd, &begin_info), "vkBeginCommandBuffer");
 
     if (!geom.line_verts.empty()) {
         line_mesh.upload(dev, cmd, geom.line_verts, geom.line_indices);

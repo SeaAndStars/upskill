@@ -32,12 +32,20 @@ void SwapchainContext::create(VkInstance instance, VulkanDevice& dev, VkPhysical
                               VkSurfaceKHR surface, uint32_t width, uint32_t height) {
     g_msaa_samples = choose_msaa(pd);
     device_ = dev.device();
-    vkGetDeviceProcAddr(device_, "vkDestroySwapchainKHR",
-                        reinterpret_cast<PFN_vkVoidFunction*>(&destroy_swapchain_));
-    vkGetDeviceProcAddr(device_, "vkAcquireNextImageKHR",
-                        reinterpret_cast<PFN_vkVoidFunction*>(&acquire_next_image_));
-    vkGetDeviceProcAddr(device_, "vkQueuePresentKHR",
-                        reinterpret_cast<PFN_vkVoidFunction*>(&queue_present_));
+    create_swapchain_ = reinterpret_cast<PFN_vkCreateSwapchainKHR>(
+        vkGetDeviceProcAddr(device_, "vkCreateSwapchainKHR"));
+    destroy_swapchain_ = reinterpret_cast<PFN_vkDestroySwapchainKHR>(
+        vkGetDeviceProcAddr(device_, "vkDestroySwapchainKHR"));
+    get_swapchain_images_ = reinterpret_cast<PFN_vkGetSwapchainImagesKHR>(
+        vkGetDeviceProcAddr(device_, "vkGetSwapchainImagesKHR"));
+    acquire_next_image_ = reinterpret_cast<PFN_vkAcquireNextImageKHR>(
+        vkGetDeviceProcAddr(device_, "vkAcquireNextImageKHR"));
+    queue_present_ = reinterpret_cast<PFN_vkQueuePresentKHR>(
+        vkGetDeviceProcAddr(device_, "vkQueuePresentKHR"));
+    if (!create_swapchain_ || !destroy_swapchain_ || !get_swapchain_images_ ||
+        !acquire_next_image_ || !queue_present_) {
+        throw std::runtime_error("缺少 VK_KHR_swapchain 设备函数");
+    }
 
     VkSurfaceCapabilitiesKHR caps{};
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(pd, surface, &caps);
@@ -84,12 +92,12 @@ void SwapchainContext::create(VkInstance instance, VulkanDevice& dev, VkPhysical
     sci.clipped = VK_TRUE;
     sci.oldSwapchain = VK_NULL_HANDLE;
 
-    vk_check(vkCreateSwapchainKHR(device_, &sci, nullptr, &swapchain_), "create swapchain");
+    vk_check(create_swapchain_(device_, &sci, nullptr, &swapchain_), "create swapchain");
 
     uint32_t sc_count = 0;
-    vkGetSwapchainImagesKHR(device_, swapchain_, &sc_count, nullptr);
+    get_swapchain_images_(device_, swapchain_, &sc_count, nullptr);
     images_.resize(sc_count);
-    vkGetSwapchainImagesKHR(device_, swapchain_, &sc_count, images_.data());
+    get_swapchain_images_(device_, swapchain_, &sc_count, images_.data());
 
     image_views_.resize(images_.size());
     for (std::size_t i = 0; i < images_.size(); ++i) {
