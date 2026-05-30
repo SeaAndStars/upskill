@@ -3,6 +3,7 @@
 mod cli;
 mod math;
 mod parser;
+mod raster;
 mod render;
 
 use std::process;
