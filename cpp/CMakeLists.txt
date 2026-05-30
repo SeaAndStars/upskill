@@ -4,9 +4,28 @@ project(upskill_cpp LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+if(DEFINED ENV{VULKAN_SDK})
+    list(APPEND CMAKE_PREFIX_PATH "$ENV{VULKAN_SDK}")
+    if(WIN32)
+        set(Vulkan_INCLUDE_DIR "$ENV{VULKAN_SDK}/Include" CACHE PATH "")
+        set(Vulkan_LIBRARY "$ENV{VULKAN_SDK}/Lib/vulkan-1.lib" CACHE FILEPATH "")
+    elseif(APPLE)
+        set(Vulkan_INCLUDE_DIR "$ENV{VULKAN_SDK}/include" CACHE PATH "")
+        set(Vulkan_LIBRARY "$ENV{VULKAN_SDK}/lib/libvulkan.dylib" CACHE FILEPATH "")
+    else()
+        set(Vulkan_INCLUDE_DIR "$ENV{VULKAN_SDK}/include" CACHE PATH "")
+        set(Vulkan_LIBRARY "$ENV{VULKAN_SDK}/lib/libvulkan.so" CACHE FILEPATH "")
+    endif()
+endif()
+
 find_package(Vulkan REQUIRED)
 
-find_program(GLSLC glslc HINTS "$ENV{VULKAN_SDK}/Bin" "$ENV{VULKAN_SDK}/bin")
+find_program(GLSLC glslc
+    HINTS
+        "$ENV{VULKAN_SDK}/Bin"
+        "$ENV{VULKAN_SDK}/bin"
+        "$ENV{VULKAN_SDK}/Bin32"
+)
 if(NOT GLSLC)
     message(FATAL_ERROR "未找到 glslc，请安装 Vulkan SDK")
 endif()

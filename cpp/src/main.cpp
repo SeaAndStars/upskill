@@ -32,7 +32,11 @@ int main(int argc, char** argv) {
         }
         const Question* q = select_question(questions, id_ptr);
         if (!q) {
-            std::cerr << "未找到题目\n";
+            if (id_ptr) {
+                std::cerr << "未找到 id=" << *id_ptr << " 的题目\n";
+            } else {
+                std::cerr << "题目列表为空\n";
+            }
             return 1;
         }
         run_vulkan_app(*q);

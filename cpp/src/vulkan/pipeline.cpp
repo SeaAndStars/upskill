@@ -5,7 +5,10 @@
 #include <stdexcept>
 
 #include "frame_geom.hpp"
+#include "vulkan/swapchain.hpp"
 #include "vulkan/vk_check.hpp"
+
+extern VkSampleCountFlagBits g_msaa_samples;
 
 namespace {
 
@@ -86,7 +89,7 @@ VkPipeline build_graphics_pipeline(VkDevice device, VkRenderPass render_pass,
 
     VkPipelineMultisampleStateCreateInfo ms{};
     ms.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-    ms.rasterizationSamples = kMsaaSamples;
+    ms.rasterizationSamples = g_msaa_samples;
 
     VkPipelineColorBlendAttachmentState blend_att{};
     blend_att.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |

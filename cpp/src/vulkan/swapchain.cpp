@@ -5,12 +5,32 @@
 
 #include "vulkan/vk_check.hpp"
 
+VkSampleCountFlagBits g_msaa_samples = VK_SAMPLE_COUNT_4_BIT;
+
+namespace {
+
+VkSampleCountFlagBits choose_msaa(VkPhysicalDevice pd) {
+    VkPhysicalDeviceProperties props{};
+    vkGetPhysicalDeviceProperties(pd, &props);
+    VkSampleCountFlags counts = props.limits.framebufferColorSampleCounts;
+    if (counts & VK_SAMPLE_COUNT_4_BIT) {
+        return VK_SAMPLE_COUNT_4_BIT;
+    }
+    if (counts & VK_SAMPLE_COUNT_2_BIT) {
+        return VK_SAMPLE_COUNT_2_BIT;
+    }
+    return VK_SAMPLE_COUNT_1_BIT;
+}
+
+}  // namespace
+
 SwapchainContext::~SwapchainContext() {
     // destroy() 应由调用方在 device 销毁前显式调用
 }
 
 void SwapchainContext::create(VkInstance instance, VulkanDevice& dev, VkPhysicalDevice pd,
                               VkSurfaceKHR surface, uint32_t width, uint32_t height) {
+    g_msaa_samples = choose_msaa(pd);
     device_ = dev.device();
     vkGetDeviceProcAddr(device_, "vkDestroySwapchainKHR",
                         reinterpret_cast<PFN_vkVoidFunction*>(&destroy_swapchain_));
@@ -91,7 +111,7 @@ void SwapchainContext::create(VkInstance instance, VulkanDevice& dev, VkPhysical
     msaa_info.extent = {extent_.width, extent_.height, 1};
     msaa_info.mipLevels = 1;
     msaa_info.arrayLayers = 1;
-    msaa_info.samples = kMsaaSamples;
+    msaa_info.samples = g_msaa_samples;
     msaa_info.tiling = VK_IMAGE_TILING_OPTIMAL;
     msaa_info.usage =
         VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
@@ -117,7 +137,7 @@ void SwapchainContext::create(VkInstance instance, VulkanDevice& dev, VkPhysical
   {
         VkAttachmentDescription color{};
         color.format = format_;
-        color.samples = kMsaaSamples;
+        color.samples = g_msaa_samples;
         color.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
         color.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
         color.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;

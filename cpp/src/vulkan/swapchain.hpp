@@ -7,8 +7,8 @@
 #include "vk_mem_alloc.h"
 #include "vulkan/device.hpp"
 
-/// MSAA 采样数。
-constexpr VkSampleCountFlagBits kMsaaSamples = VK_SAMPLE_COUNT_4_BIT;
+/// MSAA 采样数（创建 Swapchain 时按物理设备能力设置）。
+extern VkSampleCountFlagBits g_msaa_samples;
 
 /// Swapchain、MSAA 与 RenderPass。
 class SwapchainContext {
