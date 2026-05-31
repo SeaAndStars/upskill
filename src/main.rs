@@ -1,6 +1,8 @@
-//! 程序入口：解析命令行、加载题目、启动渲染窗口。
+//! 程序入口：解析命令行、加载题目、启动 Vulkan 渲染。
 
 mod cli;
+mod frame_geom;
+mod gpu;
 mod math;
 mod parser;
 mod render;
